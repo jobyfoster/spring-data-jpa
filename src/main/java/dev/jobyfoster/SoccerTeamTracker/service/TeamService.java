@@ -18,4 +18,6 @@ public interface TeamService {
     void deleteTeam(Long teamId);
 
     Team editTeam(Long teamId, TeamRequestDto teamRequestDto);
+
+    Team updateTeamPlayers(Long id, List<Long> playerIds);
 }

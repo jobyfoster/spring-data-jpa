@@ -1,7 +1,9 @@
 package dev.jobyfoster.SoccerTeamTracker.service;
 
 import dev.jobyfoster.SoccerTeamTracker.dto.requestDto.TeamRequestDto;
+import dev.jobyfoster.SoccerTeamTracker.model.Player;
 import dev.jobyfoster.SoccerTeamTracker.model.Team;
+import dev.jobyfoster.SoccerTeamTracker.repository.PlayerRepository;
 import dev.jobyfoster.SoccerTeamTracker.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +15,12 @@ import java.util.List;
 public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
+    private final PlayerRepository playerRepository;
 
     @Autowired
-    public TeamServiceImpl(TeamRepository teamRepository) {
+    public TeamServiceImpl(TeamRepository teamRepository, PlayerRepository playerRepository) {
         this.teamRepository = teamRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -57,6 +61,26 @@ public class TeamServiceImpl implements TeamService {
         teamToEdit.setCoaches(teamRequestDto.getCoaches());
 
         return teamRepository.save(teamToEdit);
+    }
+
+    @Override
+    @Transactional
+    public Team updateTeamPlayers(Long teamId, List<Long> playerIds) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() -> new IllegalArgumentException("Team with ID " + teamId + " not found"));
+
+        // Clear existing players to avoid constraint violations
+        team.getPlayers().clear();
+        teamRepository.save(team); // Save immediately to update the relationship
+
+        // Fetch and add new players
+        List<Player> updatedPlayers = (List<Player>) playerRepository.findAllById(playerIds);
+        for (Player player : updatedPlayers) {
+            team.addPlayer(player);
+            // If you're managing the relationship in Player too, set it here
+            player.setTeam(team);
+        }
+
+        return teamRepository.save(team);
     }
 
 }

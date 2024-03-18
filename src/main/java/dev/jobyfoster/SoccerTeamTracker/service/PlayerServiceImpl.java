@@ -26,8 +26,11 @@ public class PlayerServiceImpl implements PlayerService {
     public Player addPlayer(PlayerRequestDto playerRequestDto) {
         Player player = new Player();
         player.setName(playerRequestDto.getName());
-        Team team = teamService.getTeam(playerRequestDto.getTeam().getId());
-        player.setTeam(team);
+        if(playerRequestDto.getTeam() != null) {
+            Team team = teamService.getTeam(playerRequestDto.getTeam().getId());
+            player.setTeam(team);
+        }
+
         return playerRepository.save(player);
     }
 

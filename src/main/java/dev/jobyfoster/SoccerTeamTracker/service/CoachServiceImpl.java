@@ -5,23 +5,24 @@ import dev.jobyfoster.SoccerTeamTracker.model.Coach;
 import dev.jobyfoster.SoccerTeamTracker.model.Team;
 import dev.jobyfoster.SoccerTeamTracker.repository.CoachRepository;
 import dev.jobyfoster.SoccerTeamTracker.repository.TeamRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class CoachServiceImpl implements CoachService {
 
 
     private final CoachRepository coachRepository;
+    private final TeamRepository teamRepository;
     private final TeamService teamService;
 
     @Autowired
-    public CoachServiceImpl(CoachRepository coachRepository, TeamService teamService) {
+    public CoachServiceImpl(CoachRepository coachRepository, TeamRepository teamRepository, TeamService teamService) {
         this.coachRepository = coachRepository;
+        this.teamRepository = teamRepository;
         this.teamService = teamService;
     }
 
@@ -72,4 +73,21 @@ public class CoachServiceImpl implements CoachService {
 
         return coachRepository.save(coachToEdit);
     }
+
+    @Override
+    @Transactional
+    public Coach updateCoachTeams(Long coachId, Set<Long> teamIds) {
+        Coach coach = coachRepository.findById(coachId).orElseThrow(() -> new IllegalArgumentException("Coach with ID " + coachId + " not found"));
+
+        coach.getTeams().clear();
+        coachRepository.save(coach);
+
+        Set<Team> updatedTeams = new HashSet<>((Collection) teamRepository.findAllById(teamIds));
+        for (Team team : updatedTeams) {
+            coach.addTeam(team);
+        }
+
+        return coachRepository.save(coach);
+    }
+
 }

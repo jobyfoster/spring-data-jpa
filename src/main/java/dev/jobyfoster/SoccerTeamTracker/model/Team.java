@@ -1,5 +1,6 @@
 package dev.jobyfoster.SoccerTeamTracker.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -23,9 +25,11 @@ public class Team {
     private Long id;
     private String name;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "teams", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Set<Coach> coaches = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL)
     private List<Player> players;
 
@@ -49,5 +53,18 @@ public class Team {
 
     public void removePlayer(Player player) {
         players.remove(player);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Team team = (Team) o;
+        return Objects.equals(id, team.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

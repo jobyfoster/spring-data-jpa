@@ -1,6 +1,8 @@
 package dev.jobyfoster.SoccerTeamTracker.controller;
 
+import dev.jobyfoster.SoccerTeamTracker.dto.mapper;
 import dev.jobyfoster.SoccerTeamTracker.dto.requestDto.TeamRequestDto;
+import dev.jobyfoster.SoccerTeamTracker.dto.responseDto.TeamResponseDto;
 import dev.jobyfoster.SoccerTeamTracker.model.Team;
 import dev.jobyfoster.SoccerTeamTracker.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,4 +52,11 @@ public class TeamController {
         Team updatedTeam = teamService.editTeam(id, teamRequestDto);
         return new ResponseEntity<>(updatedTeam, HttpStatus.OK);
     }
+
+    @PutMapping("/{id}/players")
+    public ResponseEntity<TeamResponseDto> updateTeamPlayers(@PathVariable Long id, @RequestBody List<Long> playerIds) {
+        Team team = teamService.updateTeamPlayers(id, playerIds);
+        return new ResponseEntity<>(mapper.teamToTeamResponseDto(team), HttpStatus.OK);
+    }
+
 }

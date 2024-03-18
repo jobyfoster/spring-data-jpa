@@ -1,6 +1,8 @@
 package dev.jobyfoster.SoccerTeamTracker.controller;
 
+import dev.jobyfoster.SoccerTeamTracker.dto.mapper;
 import dev.jobyfoster.SoccerTeamTracker.dto.requestDto.CoachRequestDto;
+import dev.jobyfoster.SoccerTeamTracker.dto.responseDto.CoachResponseDto;
 import dev.jobyfoster.SoccerTeamTracker.model.Coach;
 import dev.jobyfoster.SoccerTeamTracker.service.CoachService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/coaches")
@@ -49,5 +52,11 @@ public class CoachController {
     public ResponseEntity<Coach> updateCoach(@PathVariable Long id, @RequestBody CoachRequestDto coachRequestDto) {
         Coach updatedCoach = coachService.editCoach(id, coachRequestDto);
         return new ResponseEntity<>(updatedCoach, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/teams")
+    public ResponseEntity<CoachResponseDto> updateCoachTeams(@PathVariable Long id, @RequestBody Set<Long> teamIds) {
+        Coach coach = coachService.updateCoachTeams(id, teamIds);
+        return new ResponseEntity<>(mapper.coachToCoachResponseDto(coach), HttpStatus.OK);
     }
 }
